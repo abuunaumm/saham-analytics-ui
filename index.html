@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Screener Saham Analytics</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f0f2f5; margin: 0; padding: 20px; }
+        .container { max-width: 1000px; margin: auto; background: white; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); }
+        h2 { color: #1e293b; margin-top: 0; }
+        table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+        th, td { padding: 12px; text-align: left; border-bottom: 1px solid #e2e8f0; }
+        th { background-color: #f8fafc; color: #475569; font-weight: 600; }
+        .badge { padding: 5px 10px; border-radius: 5px; font-size: 12px; font-weight: bold; color: white; }
+        .buy { background-color: #10b981; }
+        .hold { background-color: #f59e0b; }
+        .sell { background-color: #ef4444; }
+        .strong-buy { background-color: #059669; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>Screener Saham (System Generated)</h2>
+    <p id="status">Mengambil data dari server...</p>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Ticker</th>
+                <th>Harga Akhir</th>
+                <th>Skor Algoritma</th>
+                <th>Tren Teknikal</th>
+                <th>Aksi Rekomendasi</th>
+            </tr>
+        </thead>
+        <tbody id="table-body">
+            <!-- Data akan dimuat di sini oleh JavaScript -->
+        </tbody>
+    </table>
+</div>
+
+<script>
+    // GANTI DENGAN URL WEB APP DARI GOOGLE APPS SCRIPT ANDA
+    const API_URL = "https://script.googleusercontent.com/macros/echo?user_content_key=AUkAhnQbGHWOX0US_DeOOBsW4SGk2E25yyCmnuySt9uYR4uh9T0CURd1sZx75ahf2df1dff201cb3y7UVSSqxRNQjFDX9gAFAZdT4ycsKcEIsk_pInO9QRHsjEVRwAPwfVrIUF4Tilr4wCyyKCayfdDo7pRgrPu96y3OrcOPfsw4jZyKC98XHEN8puLZRS0u8a31fur8ZHJ5b4d7fmegHCmu-cE2lxttB4zbPZd1EARM78S5IFElv5yjEh4SL5SgqgdJRCY8IXqOj0aQTaTJEp9GgbIfXYiumQ&lib=MF_y6g5O-3PX8A0mLadD3CmBxlODJy9u9";
+
+    async function loadData() {
+        try {
+            const response = await fetch(API_URL);
+            const jsonData = await response.json();
+            
+            const tbody = document.getElementById('table-body');
+            tbody.innerHTML = ""; // Bersihkan tabel
+            
+            const stocks = jsonData.data;
+            for (let ticker in stocks) {
+                let s = stocks[ticker];
+                
+                // Set warna badge sesuai aksi
+                let badgeClass = s.action.toLowerCase().replace(' ', '-');
+                
+                let row = `<tr>
+                    <td><strong>${ticker}</strong></td>
+                    <td>Rp ${s.price}</td>
+                    <td>${s.algorithm_score}/100</td>
+                    <td>${s.technical.trend}</td>
+                    <td><span class="badge ${badgeClass}">${s.action}</span></td>
+                </tr>`;
+                tbody.innerHTML += row;
+            }
+            
+            document.getElementById('status').innerText = "Data berhasil dimuat. Terakhir update: " + new Date(jsonData.last_updated).toLocaleString('id-ID');
+        } catch (error) {
+            document.getElementById('status').innerText = "Gagal mengambil data: " + error.message;
+        }
+    }
+
+    // Jalankan fungsi saat halaman dimuat
+    loadData();
+</script>
+
+</body>
+</html>
